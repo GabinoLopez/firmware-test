@@ -1,0 +1,6 @@
+- input: #current.telephone#
+  time: 0.5
+  output: expected
+- input: other
+  time: 0.343
+  output: expected2

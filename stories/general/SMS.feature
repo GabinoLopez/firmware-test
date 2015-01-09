@@ -12,3 +12,22 @@ Feature: SMS
     And I execute the sequence "<sequence>"
     Then It is a success
 
+    Examples:
+    | type      | version  | sequence    |
+    | TTOpen    | 1.5.x    | sendSMS     |
+    | Shield    | 1.5.x    | sendSMS     |
+    | Shield    | 1.0.x    | sendSMS     |
+
+  @sms @sms-0001
+  Scenario: Failing on sending an SMS
+    Given a hardware of type "<type>"
+    And the Arduino IDE version "<version>"
+    And using the example sketch "sendSMS"
+    When I upload and run the sketch 
+    And I execute the sequence "<sequence>"
+    Then It is a failure
+
+    Examples:
+    | type      | version  | sequence    |
+    | TTOpen    | 1.5.x    | badsendSMS  |
+

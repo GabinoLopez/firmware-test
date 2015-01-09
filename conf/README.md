@@ -1,2 +1,2 @@
-# firmware-test
-Thinking Thing repository for BDD testing
+# Configuration
+In this directory all the required configuration files, etc... are included.
