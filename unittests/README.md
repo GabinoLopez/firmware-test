@@ -1,2 +1,2 @@
-# firmware-test
-Thinking Thing repository for BDD testing
+# Unit Testing
+Internal unittesting using ArduinoTest
