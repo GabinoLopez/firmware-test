@@ -1,12 +1,16 @@
+#include "Arduino.h"
+#define ID "1"
 /*
 
-    Here a token <#hardware#> <#config.kk#> <#config.Hardwares.Shield.telephone#> <#sketch.name#>
+    Here a token TTOpen <#config.kk#> 763476473643376437 xend
 
-    GPRS_APN
+    telefonica.com
 
 */
 
 #include <ArduinoUnit.h>
+void setup();
+void loop();
 
 /* test(correct)
 {

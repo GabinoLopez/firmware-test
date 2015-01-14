@@ -1,25 +1,25 @@
 /*
 
-    Here a token <#hardware#> <#config.kk#> <#config.Hardwares.Shield.telephone#> <#sketch.name#>
+    Here a token TTOpen <#config.kk#> 763476473643376437 xend
 
-    GPRS_APN
+    telefonica.com
 
 */
 
 #include <ArduinoUnit.h>
 
-/* test(correct)
+test(correct)
 {
   int x=1;
   assertEqual(x,1);
-} */
+}
 
-test(incorrect)
+/*test(incorrect)
 {
   int x=1;
   assertNotEqual(x,1);
 }
-
+*/
 void setup()
 {
   Serial.begin(9600);
