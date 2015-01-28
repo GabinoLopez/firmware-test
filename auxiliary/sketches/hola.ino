@@ -6,6 +6,6 @@ void setup()
 
 void loop()
 {
-  Serial.write("Hola!")
+  Serial.write("Hola!");
   delay(10000);
 }

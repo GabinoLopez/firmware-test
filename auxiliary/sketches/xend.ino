@@ -8,17 +8,17 @@
 
 #include <ArduinoUnit.h>
 
-/* test(correct)
+test(correct)
 {
   int x=1;
   assertEqual(x,1);
-} */
+}
 
-test(incorrect)
+/* test(incorrect)
 {
   int x=1;
   assertNotEqual(x,1);
-}
+} */
 
 void setup()
 {

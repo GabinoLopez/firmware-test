@@ -1,0 +1,4 @@
+- output: SMS Messages Sender
+- output: GSM initialized
+- output: 'Enter a mobile number:'
+  input: tosendphone\n

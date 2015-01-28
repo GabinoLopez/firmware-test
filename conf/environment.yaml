@@ -1,13 +1,13 @@
 Hardwares:
    Shield:
-      port: COM4 
-      telephone: 763476473643376437
+      port: COM5 
+      timeout: 30
    TTOpen:
       port: COM4 
-      telephone: 87387438743
+      timeout: 10
 IDEs:
    1_0_x:
-      Path: C:\Program Files (x86)\Arduino\
+      Path: C:\PROGRA~2\Arduino
    1_5_x:
       Path: D:\TT\arduino-1.5.8
 Sketchs:
@@ -15,3 +15,4 @@ Sketchs:
       GPRS_APN: telefonica.com
       login: un_login
       password: una password
+      tosendphone: '+34646237397'

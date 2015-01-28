@@ -4,7 +4,7 @@
 #  A list of utils functions
 #
 from lettuce import world
-from os import path, remove, rmdir, makedirs
+from os import path, remove, rmdir, makedirs, walk
 import re
 import numbers
 import shutil
@@ -43,6 +43,7 @@ def recall(cad):
 			value = find_in_map(toChange[7:],world.config)
 		else:
 			value = find_in_map(toChange,world.c)
+
 		if not value and  sk_subs and toChange in world.config['Sketchs']['Substitutions']:
 			value = world.config['Sketchs']['Substitutions'][toChange]
 
@@ -59,12 +60,34 @@ def recall(cad):
 	return cad
 
 #
+# Outputs management
+#
+def get_output(output_name):
+	assert output_name.endswith('.out'), 'Improper output name, it should end in .out.'
+	filepath = path.join(path.dirname(__file__),"..","..","auxiliary","outputs",output_name)
+	assert path.isfile(filepath), 'No %s file found!' % (output_name)
+	try:
+		f = file(filepath,'r')
+		output = f.read()
+		f.close()
+		return recall(output)
+	except Exception, argument:
+		assert False, 'Problems getting the file %s: %s' % (output_name,argument)	
+
+#
 #  Sketch management
 #
-def translate_sketch(sketch_name):
+def clean_all_tmp_sketch():
+	dirpath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp")
+	shutil.rmtree(dirpath_tmp)
+
+def translate_sketch(sketch_name,origin=None):
 	assert sketch_name.endswith('.ino'), 'Improper sketch name, it should end in .ino.'
 	first_part = sketch_name[:-4]
-	filepath_origin = path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_name)
+	if not origin:
+		filepath_origin = path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_name)
+	else:
+		filepath_origin = origin
 	filepath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp",first_part,sketch_name)
 	dirpath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp",first_part)
 	assert path.isfile(filepath_origin), 'No %s file found!' % (sketch_name)
@@ -83,17 +106,30 @@ def translate_sketch(sketch_name):
 	except Exception, argument:
 		assert False, 'Problems changing the file %s: %s' % (sketch_name,argument)
 
-def obtain_arduino_response(port, tmax):
+def obtain_arduino_response_unit_test(port, tmax):
     tstart=datetime.now()
     input=""
-    while (1):
+    while True:
         tdelta=datetime.now()-tstart
-        if(tdelta.total_seconds()>tmax):
+        if tdelta.total_seconds()>tmax:
+            break
+        c = port.read()
+        input+=c
+        if "test(s)." in input:
+            break
+    return input
+
+def obtain_arduino_response(port, tmax, expected = None):
+    tstart=datetime.now()
+    input=""
+    while True:
+        tdelta=datetime.now()-tstart
+        if tdelta.total_seconds()>tmax:
             break
         c=port.read()
         input+=c
-        if(input.find("test(s).")>=0):
-            return input
+        if expected and expected in input:
+            break
     return input
 
 def analysis_arduino_unit_test(response):
@@ -153,10 +189,27 @@ def verify_test_sketch(sketch_file):
 	assert path.isfile(path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_file + '.ino')), \
 			'There is no file %s.ino in the path %s.' % (sketch_file,path.join(path.dirname(__file__),"..","..","auxiliary",'sketches'))
 
+def verify_ino_in_path(origin,sketch_file):
+	sketch_file += '.ino'
+	for dirname, dirnames, filenames in walk(origin):
+		# print path to all filenames.
+		for filename in filenames:
+			if filename.endswith(sketch_file):
+				return dirname
+
 
 def verify_arduino_sketch(sketch_file):
-	assert path.isfile(path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_file + '.ino')), \
-			'There is no file %s.ino in the path %s.' % (sketch_file,path.join(path.dirname(__file__),"..","..","auxiliary",'sketches'))
+	assert 'ide_version' in world.c, 'Assert not Arduino version selected yet.'
+	ide_path = get_config('IDEs.' + world.c['ide_version'] + '.Path')
+	assert path.isdir(ide_path), 'Incorrect path to Arduino IDE: %s' % ide_path
+	assert path.isdir(path.join(ide_path,'examples')), 'No examples directory in the Arduino IDE.'
+	assert path.isdir(path.join(ide_path,'libraries')), 'No lib directory in the Arduino IDE.'
+	found_in = verify_ino_in_path(path.join(ide_path,'examples'),sketch_file)
+	if not found_in:
+		found_in = verify_ino_in_path(path.join(ide_path,'libraries'),sketch_file)
+	assert found_in, 'There is no sketch called %s.' % sketch_file
+	assert path.isfile(path.join(found_in,sketch_file + '.ino')), 'There is no file %s.' % path.join(found_in,sketch_file + '.ino')
+	return path.join(found_in,sketch_file + '.ino')
 
 def verify_unit_sketch(sketch_file):
 	assert path.isfile(path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_file + '.ino')), \

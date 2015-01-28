@@ -7,13 +7,12 @@ Feature: SMS
   Scenario: Sending an SMS
     Given a hardware of type "<type>"
     And the Arduino IDE version "<version>"
-    And using the unit test sketch "hola"
+    And using the example sketch "<sketch>"
+    And considering the sequence "<sequence>"
     When I upload and run the sketch 
     Then It is a success
 
     Examples:
-    | type      | version  | sequence    |
-#    | TTOpen    | 1_5_x    | sendSMS     |
-#    | Shield    | 1_5_x    | sendSMS     |
-    | TTOpen    | 1_0_x    | sendSMS     |
+    | type      | version  | sequence    | sketch       |
+    | Shield    | 1_5_x    | sendSMS     | SendSMS      |
 

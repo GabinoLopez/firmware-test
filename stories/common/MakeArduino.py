@@ -19,7 +19,7 @@ class MakeArduino(object):
     This class compile and upload an Arduino sketch.
     """
     
-    def __init__(self, port, sketch, path_sdk, mcu, programmer, fcpu, burnrate, identification, verbose):
+    def __init__(self, port, sketch, path_sdk, mcu, programmer, fcpu, burnrate, identification, verbose, version='1_0_x'):
         """
         Constructor
         
@@ -45,6 +45,8 @@ class MakeArduino(object):
         
         self.__includes = [] # List of libraries used by the sketch (objects Library)
         self.__libraries = [] # List of all available objects libraries (objects Library)
+
+        self.__version = version
         
         # String for save later the absolute path of C++ code file generated with the sketch
         self.__cpp_path = ""
@@ -197,8 +199,14 @@ class MakeArduino(object):
             return -1   
            
         # Necessary elements paths (Arduino core library & Arduino board type configuration)
-        cores_path = os.path.join(self.__path_sdk, "hardware", "arduino", "cores", "arduino")
-        variants_standard_path = os.path.join(self.__path_sdk, "hardware", "arduino", "variants", "standard")
+        if self.__version != '1_0_x':
+            # 1_5_x or more
+            cores_path = os.path.join(self.__path_sdk, "hardware", "arduino", "avr", "cores", "arduino")
+            variants_standard_path = os.path.join(self.__path_sdk, "hardware", "arduino", "avr", "variants", "standard")       
+        else:
+            # 1_0_x, the old ones
+            cores_path = os.path.join(self.__path_sdk, "hardware", "arduino", "cores", "arduino")
+            variants_standard_path = os.path.join(self.__path_sdk, "hardware", "arduino", "variants", "standard")
         
         # All the basic commands of the tools (compilers, generators...) to run and its standard parameters for Arduino
         # -- ONLY INCLUDED ARDUINO ONE MODEL -- NOT TESTED WITH OTHER TYPES OF ARDUINO BOARD!!!
@@ -234,6 +242,7 @@ class MakeArduino(object):
         pipe = subprocess.Popen(command_build_sketch, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output_console = str(pipe.communicate()[1])
         # Scan the console output for detect any error
+        # print "Output Console:", output_console
         if ("error" in output_console) | ("failed" in output_console):
             print(self.__debugMsg() + command_build_sketch)
             print(self.__debugMsg() + output_console)
@@ -455,50 +464,38 @@ class MakeArduino(object):
             if self.__verbose:
                 print(self.__debugMsg() + "Compilation OK!")
         elif res_compilation == -1:
-            print(self.__debugMsg() + "PARSER SKETCH ERROR!")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "PARSER SKETCH ERROR!"
         elif res_compilation == -2:
-            print(self.__debugMsg() + "SKETCH COMPILATION ERROR!")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "SKETCH COMPILATION ERROR!"
         elif res_compilation == -3:
-            print(self.__debugMsg() + "LIBRARY COMPILATION ERROR! (C CODE)")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "LIBRARY COMPILATION ERROR! (C CODE)"
         elif res_compilation == -4:
-            print(self.__debugMsg() + "LIBRARY COMPILATION ERROR! (C++ CODE)")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "LIBRARY COMPILATION ERROR! (C++ CODE)"
         elif res_compilation == -5:
-            print(self.__debugMsg() + "CORE LIBRARY COMPILATION ERROR! (C CODE)")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "CORE LIBRARY COMPILATION ERROR! (C CODE)"
         elif res_compilation == -6:
-            print(self.__debugMsg() + "CORE LIBRARY COMPILATION ERROR! (C++ CODE)")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "CORE LIBRARY COMPILATION ERROR! (C++ CODE)"
         elif res_compilation == -7:
-            print(self.__debugMsg() + "FAILED TO CREATE core.a!")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "FAILED TO CREATE core.a!"
         elif res_compilation == -8:
-            print(self.__debugMsg() + "FAILED TO CREATE ELF FILE!")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "FAILED TO CREATE ELF FILE!"
         elif res_compilation == -9:
-            print(self.__debugMsg() + "FAILED TO CREATE EEP FILE")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "FAILED TO CREATE EEP FILE"
         elif res_compilation == -10:
-            print(self.__debugMsg() + "FAILED TO CREATE HEXADECIMAL FILE")
-            return res_compilation
+            return res_compilation, self.__debugMsg() + "FAILED TO CREATE HEXADECIMAL FILE"
         else:
-            print(self.__debugMsg() + "UNEXPECTED ERROR!! PANIC!!")
-            return -99
+            return -99, self.__debugMsg() + "UNEXPECTED ERROR!! PANIC!!"
         
         res_upload = self.__upload() # Upload the sketch to Arduino board
         
         # Upload error control
         if res_upload < 0:
-            print(self.__debugMsg() + "UPLOAD ERROR!")
-            return -11
+            return -11, self.__debugMsg() + "UPLOAD ERROR!"
         else:
             if self.__verbose:
                 print(self.__debugMsg() + "Upload OK!")
         
-        return 0
+        return 0, "Upload OK"
             
     def __searchLibraries(self):
         """
@@ -513,7 +510,10 @@ class MakeArduino(object):
             subfolders = [os.path.join(path_lib, f) for f in subfolders]
             for subdir in subfolders:
                 # Create new object of class Library for each library subfolder
-                lib_temp = Library.Library(subdir)
+                if self.__version != '1_0_x':
+                    lib_temp = Library.Library(os.path.join(subdir,'src'))
+                else:
+                    lib_temp = Library.Library(subdir)
                 self.__libraries.append(lib_temp) # Store library name (subfolder name)
                                 
     def __searchCorrespondingLibray(self, header_include):
