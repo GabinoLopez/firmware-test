@@ -130,7 +130,7 @@ def i_upload_and_run_the_sketch(step):
 					assert 'output' in step, 'Improperly defined sequence. The step %s has not "out" field.' % step_counter
 					desired_output = recall(step['output'])
 					response = obtain_arduino_response(port,arudino_timeout, expected=desired_output)
-					print '<<', response
+					# print '<<', response
 					step_counter += 1
 					world.result = desired_output in response
 					if not world.result:
@@ -138,7 +138,7 @@ def i_upload_and_run_the_sketch(step):
 						break
 					if 'input' in step:
 						input = recall(step['input']+'\n')
-						print '>>', input 
+						# print '>>', input 
 						port.write(input)
 				if world.result:
 					world.result_detailed = 'All the steps verified.'
