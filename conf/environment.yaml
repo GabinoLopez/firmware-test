@@ -2,9 +2,21 @@ Hardwares:
    Shield:
       port: COM5 
       timeout: 30
+      Substitutions:
+         GPRS_APN: telefonica.com
+         login: un_login
+         password: una password
+         tosendphone: '+34646237397'
+         smstext: 'Hola, esto es un sms.'
    TTOpen:
       port: COM4 
       timeout: 30
+      Substitutions:
+         GPRS_APN: telefonica.com
+         login: un_login
+         password: una password
+         tosendphone: '+34646237397'
+         smstext: 'Hola, esto es un sms.'      
 IDEs:
    1_0_x:
       Path: C:\PROGRA~2\Arduino
@@ -14,8 +26,3 @@ IDEs:
       CompileVersion: 158
 Sketchs:
    Substitutions:
-      GPRS_APN: telefonica.com
-      login: un_login
-      password: una password
-      tosendphone: '+34646237397'
-      smstext: 'Hola, esto es un sms.'

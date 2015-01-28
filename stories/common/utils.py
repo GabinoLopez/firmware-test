@@ -34,7 +34,12 @@ def recall(cad):
 	'''
 	tp = re.compile(r'<#([A-Za-z0-9.]*)#>')
 
-	sk_subs = 'Sketchs' in world.config and 'Substitutions' in world.config['Sketchs']
+	sk_subs = 'Sketchs' in world.config and 'Substitutions' in world.config['Sketchs'] and world.config['Sketchs']['Substitutions']
+	sk_hw_subs = False
+
+	if 'hardware' in world.c and world.c['hardware'] in world.config['Hardwares']:
+		hw_config = world.config['Hardwares'][world.c['hardware']]
+		sk_hw_subs = 'Substitutions' in hw_config and hw_config['Substitutions']
 
 	possibles = tp.findall(cad)
 	value = None
@@ -44,7 +49,10 @@ def recall(cad):
 		else:
 			value = find_in_map(toChange,world.c)
 
-		if not value and  sk_subs and toChange in world.config['Sketchs']['Substitutions']:
+		if not value and sk_hw_subs and toChange in hw_config['Substitutions']:
+			value = hw_config['Substitutions'][toChange]
+
+		if not value and sk_subs and toChange in world.config['Sketchs']['Substitutions']:
 			value = world.config['Sketchs']['Substitutions'][toChange]
 
 		if value and ( isinstance(value, numbers.Number)):
@@ -53,6 +61,9 @@ def recall(cad):
 		if value and ( isinstance(value,str) or isinstance(value,unicode) ):
 			cad = re.sub('<#' + toChange + '#>', value, cad)
 
+	if sk_hw_subs:
+		for subs in hw_config['Substitutions']:
+			cad = re.sub(subs,hw_config['Substitutions'][subs],cad)		
 
 	if sk_subs:
 		for subs in world.config['Sketchs']['Substitutions']:
