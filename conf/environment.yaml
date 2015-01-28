@@ -4,15 +4,18 @@ Hardwares:
       timeout: 30
    TTOpen:
       port: COM4 
-      timeout: 10
+      timeout: 30
 IDEs:
    1_0_x:
       Path: C:\PROGRA~2\Arduino
+      CompileVersion: 106
    1_5_x:
       Path: D:\TT\arduino-1.5.8
+      CompileVersion: 158
 Sketchs:
    Substitutions:
       GPRS_APN: telefonica.com
       login: un_login
       password: una password
       tosendphone: '+34646237397'
+      smstext: 'Hola, esto es un sms.'

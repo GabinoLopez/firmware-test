@@ -79,7 +79,9 @@ def get_output(output_name):
 #
 def clean_all_tmp_sketch():
 	dirpath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp")
-	shutil.rmtree(dirpath_tmp)
+	if path.isdir(dirpath_tmp):
+		shutil.rmtree(dirpath_tmp)
+	makedirs(dirpath_tmp)
 
 def translate_sketch(sketch_name,origin=None):
 	assert sketch_name.endswith('.ino'), 'Improper sketch name, it should end in .ino.'

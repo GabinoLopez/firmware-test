@@ -19,7 +19,7 @@ class MakeArduino(object):
     This class compile and upload an Arduino sketch.
     """
     
-    def __init__(self, port, sketch, path_sdk, mcu, programmer, fcpu, burnrate, identification, verbose, version='1_0_x'):
+    def __init__(self, port, sketch, path_sdk, mcu, programmer, fcpu, burnrate, identification, verbose, version='1_0_x', hw_platform='Shield'):
         """
         Constructor
         
@@ -47,6 +47,7 @@ class MakeArduino(object):
         self.__libraries = [] # List of all available objects libraries (objects Library)
 
         self.__version = version
+        self.__hw_platform = hw_platform
         
         # String for save later the absolute path of C++ code file generated with the sketch
         self.__cpp_path = ""
@@ -207,11 +208,16 @@ class MakeArduino(object):
             # 1_0_x, the old ones
             cores_path = os.path.join(self.__path_sdk, "hardware", "arduino", "cores", "arduino")
             variants_standard_path = os.path.join(self.__path_sdk, "hardware", "arduino", "variants", "standard")
+
+        if self.__hw_platform == 'TTOpen':
+            hw_option = '-DTTOPEN_V1'
+        else:
+            hw_option = ''
         
         # All the basic commands of the tools (compilers, generators...) to run and its standard parameters for Arduino
         # -- ONLY INCLUDED ARDUINO ONE MODEL -- NOT TESTED WITH OTHER TYPES OF ARDUINO BOARD!!!
-        cmd_avrgpp = os.path.join(self.__tools_path, "avr-g++") + " -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -mmcu=" + self.__mcu + " -DF_CPU=" + self.__fcpu + " -DARDUINO=105"
-        cmd_avrgcc_lib = os.path.join(self.__tools_path, "avr-gcc") + " -c -g -Os -Wall -ffunction-sections -fdata-sections -mmcu=" + self.__mcu + " -DF_CPU=" + self.__fcpu + " -DARDUINO=105"
+        cmd_avrgpp = os.path.join(self.__tools_path, "avr-g++") + " -c -g -Os -Wall -fno-exceptions -ffunction-sections -fdata-sections -mmcu=" + self.__mcu + " -DF_CPU=" + self.__fcpu + " -DARDUINO=105 " + hw_option
+        cmd_avrgcc_lib = os.path.join(self.__tools_path, "avr-gcc") + " -c -g -Os -Wall -ffunction-sections -fdata-sections -mmcu=" + self.__mcu + " -DF_CPU=" + self.__fcpu + " -DARDUINO=105 " + hw_option
         cmd_avrar = os.path.join(self.__tools_path, "avr-ar") + " rcs"
         cmd_avrgcc_core = os.path.join(self.__tools_path, "avr-gcc") + " -Os -Wl,--gc-sections -mmcu=" + self.__mcu
         cmd_avrobjcopy1 = os.path.join(self.__tools_path, "avr-objcopy") + " -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0"
