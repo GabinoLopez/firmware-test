@@ -85,6 +85,7 @@ def i_upload_and_run_the_sketch(step):
 	# Uploading
 	assert 'hardware' in world.c, 'Internal error, no hardware defined.'
 	port = get_config('Hardwares.' + world.c['hardware'] + '.port' )
+	hardware = world.c['hardware']
 	arudino_timeout = get_config('Hardwares.' + world.c['hardware'] + '.timeout')
 
 	c=MakeArduino.MakeArduino(port, 
@@ -96,7 +97,8 @@ def i_upload_and_run_the_sketch(step):
 		                      "115200",
 		                      "1", 
 		                      False,
-		                      version=ide_version
+		                      version=ide_version,
+		                      hw_platform=hardware
 		                      )	
 	compile_result, result_details = c.compileAndUpload()
 	assert compile_result==0, "Problems compiling: %s-%s" % (compile_result,result_details)
@@ -128,12 +130,16 @@ def i_upload_and_run_the_sketch(step):
 					assert 'output' in step, 'Improperly defined sequence. The step %s has not "out" field.' % step_counter
 					desired_output = recall(step['output'])
 					response = obtain_arduino_response(port,arudino_timeout, expected=desired_output)
-					print response
+					print '<<', response
 					step_counter += 1
 					world.result = desired_output in response
 					if not world.result:
 						world.result_detailed = 'Not received %s in the response at step %s but %s.' % (desired_output,step_counter,response)
 						break
+					if 'input' in step:
+						input = recall(step['input']+'\n')
+						print '>>', input 
+						port.write(input)
 				if world.result:
 					world.result_detailed = 'All the steps verified.'
 			else:
