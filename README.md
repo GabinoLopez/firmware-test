@@ -24,4 +24,10 @@ You can install all the required modules using the project requirements.txt with
 
 Clone it from the current project:
 
-	git clone 
+	git clone git@github.com:thinkingthings/firmware-test.git
+	
+## Adjust your configuration
+
+Finally you will need to adjust the values of you enviroment.yaml as can be seen in:
+
+	https://github.com/thinkingthings/firmware-test/blob/develop/conf/README.md
