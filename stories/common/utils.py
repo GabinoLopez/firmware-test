@@ -10,6 +10,8 @@ import numbers
 import shutil
 from datetime import datetime
 import sys
+import MakeArduino
+import serial
 
 #
 #  Patterns
@@ -100,7 +102,7 @@ def translate_sketch(sketch_name,origin=None):
 	if not origin:
 		filepath_origin = path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_name)
 	else:
-		filepath_origin = origin
+		filepath_origin = path.join(origin,sketch_name)
 	filepath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp",first_part,sketch_name)
 	dirpath_tmp = path.join(path.dirname(__file__),"..","..","auxiliary","sketches","tmp",first_part)
 	assert path.isfile(filepath_origin), 'No %s file found!' % (sketch_name)
@@ -171,6 +173,57 @@ def analysis_arduino_unit_test(response):
 
 	return {'passed':passed, 'failed':failed}
 
+def run_unit_test(directory,unittest):	
+	tmp_sketch_path = translate_sketch(unittest,origin=directory)
+
+	# Prepare the compiler
+	assert 'ide_version' in world.c, 'Internal error, no Arduino IDE version.'
+	ide_path = get_config('IDEs.' + world.c['ide_version'] + '.Path')
+	ide_version = world.c['ide_version']
+
+	# Uploading
+	assert 'hardware' in world.c, 'Internal error, no hardware defined.'
+	port = get_config('Hardwares.' + world.c['hardware'] + '.port' )
+	hardware = world.c['hardware']
+	arudino_timeout = get_config('Hardwares.' + world.c['hardware'] + '.timeout')
+
+	c=MakeArduino.MakeArduino(port, 
+		                      tmp_sketch_path,
+		                      ide_path,
+		                      "atmega328p",
+		                      "arduino",
+		                      "16000000L",
+		                      "115200",
+		                      "1", 
+		                      False,
+		                      version=ide_version,
+		                      hw_platform=hardware
+		                      )	
+	compile_result, result_details = c.compileAndUpload()
+	assert compile_result==0, "Problems compiling: %s-%s" % (compile_result,result_details)
+
+	try:            
+		port=serial.Serial(port, 9600, timeout=1)
+		response = obtain_arduino_response_unit_test(port,arudino_timeout)
+		result = analysis_arduino_unit_test(response)
+
+		if not result['failed'] and not result['passed']:
+			world.result = False
+			world.result_detailed = '(%s) No test result found in the response: %s' % (unittest,response)
+		else:
+			world.result = not result['failed']
+			world.result_detailed = '(%s): %s' % (unittest,result)
+	except Exception, argument:
+		assert False, argument
+
+def run_all_unit_test_in(directory):
+	# create a list of unittests
+	for dirname, dirnames, filenames in walk(directory):
+		for filename in filenames:
+			if filename.endswith('.ino'):
+				run_unit_test(dirname,filename)
+	return True, 'All correct'
+
 #
 #  Configuration files
 #
@@ -222,8 +275,11 @@ def verify_arduino_sketch(sketch_file):
 		found_in = verify_ino_in_path(path.join(ide_path,'libraries'),sketch_file)
 	assert found_in, 'There is no sketch called %s.' % sketch_file
 	assert path.isfile(path.join(found_in,sketch_file + '.ino')), 'There is no file %s.' % path.join(found_in,sketch_file + '.ino')
-	return path.join(found_in,sketch_file + '.ino')
+	return found_in
 
 def verify_unit_sketch(sketch_file):
-	assert path.isfile(path.join(path.dirname(__file__),"..","..","auxiliary","sketches",sketch_file + '.ino')), \
-			'There is no file %s.ino in the path %s.' % (sketch_file,path.join(path.dirname(__file__),"..","..","auxiliary",'sketches'))
+	found_in = verify_ino_in_path(path.join(path.dirname(__file__),"..","..","auxiliary","sketches"),sketch_file)
+	if not found_in:
+		found_in = verify_ino_in_path(path.join(path.dirname(__file__),"..","..","unittest"),sketch_file)
+	assert path.isfile(path.join(found_in,sketch_file + '.ino')),'There is no file %s.ino in the path %s.' % (sketch_file,found_in)
+	return found_in

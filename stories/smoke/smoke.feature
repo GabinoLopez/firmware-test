@@ -63,10 +63,7 @@ Feature: Basic
     | type      | version  | sequence   | sample              |
     | TTOpen    | 1_0_x    | asciitable | ASCIITable          |
     | TTOpen    | 1_5_x    | asciitable | ASCIITable          |
-    | TTOpen    | 1_0_x    | zero       | DigitalReadSerial   |
-    | TTOpen    | 1_5_x    | zero       | DigitalReadSerial   |
     | Shield    | 1_0_x    | asciitable | ASCIITable          |
     | Shield    | 1_5_x    | asciitable | ASCIITable          |
-    | Shield    | 1_0_x    | one        | DigitalReadSerial   |
-    | Shield    | 1_5_x    | one        | DigitalReadSerial   |
+
 

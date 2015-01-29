@@ -14,8 +14,8 @@ Feature: SMS
 
     Examples:
     | type      | version  | sequence    | sketch       |
-    # | Shield    | 1_0_x    | sendSMS     | SendSMS      |
-    # | Shield    | 1_5_x    | sendSMS     | SendSMS      |
+    | Shield    | 1_0_x    | sendSMS     | SendSMS      |
+    | Shield    | 1_5_x    | sendSMS     | SendSMS      |
     | TTOpen    | 1_0_x    | sendSMS     | SendSMS      |
-    # | TTOpen    | 1_5_x    | sendSMS     | SendSMS      |
+    | TTOpen    | 1_5_x    | sendSMS     | SendSMS      |
 
