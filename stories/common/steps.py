@@ -35,8 +35,7 @@ def using_the_group1_sketch_group2(step, kind, sketch_name):
 		world.c['sketch'] = {'name':sketch_name, 'kind':kind}
 	elif kind == 'unit test':
 		# Case of unit test
-		verify_unit_sketch(sketch_name)
-		world.c['sketch'] = {'name':sketch_name, 'kind':kind}
+		world.c['sketch'] = {'name':sketch_name, 'kind':kind,'path':verify_unit_sketch(sketch_name)}
 
 @step(u'using the sketch "([^"]*)"')
 def using_the_sketch_group1(step, sketch_name):
@@ -68,12 +67,19 @@ def i_upload_and_run_the_sketch(step):
 	kind = world.c['sketch']['kind']
 	if kind != 'example':
 		assert 'name' in world.c['sketch'], 'Internal error, no name in the sketch object.'
-
-		# Substitute the tokens
 		sketch_name = world.c['sketch']['name'] + '.ino'
-		tmp_sketch_path = translate_sketch(sketch_name)
+
+		if kind == 'unit test':
+			assert 'path' in world.c['sketch'], 'Internal error, no path in the sample sketch object.'
+			run_unit_test(world.c['sketch']['path'],sketch_name)
+			return
+		else:
+			# Substitute the tokens
+			sketch_name = world.c['sketch']['name'] + '.ino'
+			tmp_sketch_path = translate_sketch(sketch_name)
 	else:
-		assert 'path' in world.c['sketch'], 'Internal error, no name in the sketch object.'
+		assert 'path' in world.c['sketch'], 'Internal error, no path in the sample sketch object.'
+		assert 'name' in world.c['sketch'], 'Internal error, no name in the sample sketch object.'
 		sketch_name = world.c['sketch']['name'] + '.ino'
 		tmp_sketch_path = translate_sketch(sketch_name,origin=world.c['sketch']['path'])
 
@@ -165,6 +171,10 @@ def it_is_a_success(step):
 		# default
 		assert world.result, world.result_detailed
 
+@step(u'They are successful')
+def they_are_successful(step):
+    it_is_a_success(step)
+
 @step(u'It is a failure')
 def it_is_a_failure(step):
 	assert 'sketch' in world.c, 'No sketch has been declared in the feature. Review the feature.'
@@ -186,3 +196,13 @@ def i_verify_the_output_against_group1(step, output_file):
 		world.result_detailed = 'Expected "%s" and received "%s".' % (desired_output,world.c['output'])
 	else:
 		world.result_detailed = 'All it is correct.'
+
+#
+# Unit tests
+#
+@step(u'I run all the unit tests of (.*)$')
+def i_run_all_the_unit_tests_of_group1(step,story):
+    ut_story_path = path.join(path.dirname(__file__),"..","..","unittests",story)
+    world.c['sketch'] = {'kind':'unit tests'}
+    assert path.isdir(ut_story_path), 'Not found the directory unittests/%s.' % story
+    world.result, world.result_detailed = run_all_unit_test_in(ut_story_path)
