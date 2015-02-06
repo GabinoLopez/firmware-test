@@ -1,0 +1,4 @@
+- output: Starting Arduino web client
+- output: connecting...
+- output: connected
+- output: HTTP/1.1 200 OK
