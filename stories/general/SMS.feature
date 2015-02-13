@@ -18,4 +18,5 @@ Feature: SMS
     | Shield    | 1_5_x    | sendSMS     | SendSMS      |
     | TTOpen    | 1_0_x    | sendSMS     | SendSMS      |
     | TTOpen    | 1_5_x    | sendSMS     | SendSMS      |
+    #| TTOpen    | 1_6_x    | sendSMS     | SendSMS      |
 

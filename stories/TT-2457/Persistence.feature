@@ -3,20 +3,6 @@ Feature: TT-2457 Persistence tests
   As Thinking Thing QA
   I'll execute the full set of tests
 
-  @TT-2457 @unittests @ready @TT-2457-ut-0001
-  Scenario: Run all the unit tests of TT-2457
-    Given a hardware of type "<type>"
-    And the Arduino IDE version "<version>"
-    When I run all the unit tests of TT-2457
-    Then They are successful
-
-    Examples:
-    | type      | version  |
-    | Shield    | 1_0_x    |
-    | Shield    | 1_5_x    |
-    | TTOpen    | 1_0_x    |
-    | TTOpen    | 1_5_x    |
-
   @TT-2457 @ready @TT-2457-persis-0001
   Scenario: Writing and reading from the remote database
     Given a hardware of type "<type>"
@@ -27,10 +13,10 @@ Feature: TT-2457 Persistence tests
 
     Examples:
     | type              | version  |
-    | TTOpen            | 1.5.x    |
-    | TTOpen            | 1.0.x    |
-    | Shield            | 1.5.x    |
-    | Shield            | 1.0.x    |
+    | TTOpen            | 1_5_x    |
+    | TTOpen            | 1_0_x    |
+    | Shield            | 1_5_x    |
+    | Shield            | 1_0_x    |
     # | EthernetShield    | 1.5.x    |    
     # | EthernetShield    | 1.0.x    |
 
@@ -45,6 +31,6 @@ Feature: TT-2457 Persistence tests
 	
     Examples:
     | type              | version  |
-    | TTOpen            | 1.5.x    |
-    | TTOpen            | 1.0.x    |
+    | TTOpen            | 1_5_x    |
+    | TTOpen            | 1_0_x    |
 

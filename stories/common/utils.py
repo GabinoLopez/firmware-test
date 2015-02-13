@@ -12,6 +12,8 @@ from datetime import datetime
 import sys
 import MakeArduino
 import serial
+import httplib
+import json
 
 #
 #  Patterns
@@ -243,7 +245,7 @@ def verify_map_option(name_map,map,path,value):
 		assert element in map, 'Problem with %s. Section %s is required and not present.' % (name_map,'.'.join(followed_path))
 		map = map[element]
 	if value:
-		assert value in map, 'Problem with %s. Value %s should to be present at %s and it is not.' % (name_map,value,followed_path.join('.'))
+		assert value in map, 'Problem with %s. Value %s should to be present at %s and it is not.' % (name_map,value,'.'.join(followed_path))
 
 def verify_config(path,value=None):
 	verify_map_option('environment.yaml file',world.config,path,value)	
@@ -283,3 +285,45 @@ def verify_unit_sketch(sketch_file):
 		found_in = verify_ino_in_path(path.join(path.dirname(__file__),"..","..","unittest"),sketch_file)
 	assert path.isfile(path.join(found_in,sketch_file + '.ino')),'There is no file %s.ino in the path %s.' % (sketch_file,found_in)
 	return found_in
+
+# world.result = get_vale_from_backend(cloud=world.c['cloud'],stack_id=external_id,sensor=sensor)
+def get_value_from_backend(cloud=None,stack_id=None,sensor=None):
+	assert cloud,'A cloud need to be determined.'
+	assert stack_id, 'A device need to be determined.'
+	assert sensor, 'A kind of measure need to be determined.'
+	assert 'endpoint' in cloud, 'The cloud used has no endpoint defined.'
+	assert 'port' in cloud, 'The cloud used has no port defined.'
+	assert 'token' in cloud, 'The cloud used has no token defined.'
+	
+	try:
+		if sensor.startswith('GenericMeasure') or sensor.startswith('GenericConfig'):
+			parts = sensor.split('.')
+			assert len(parts)==2, 'Incorrect syntax in the definition of the sensor: %s' % sensor
+			label = parts[1]
+			sensor = parts[0]
+		else:
+			label = None
+
+		RESOURCE_PATH = '/Api/v1/'+ str(stack_id) +'/'+ sensor +'/'
+		if label:
+			RESOURCE_PATH += '?label=' + str(label)
+
+		connection = httplib.HTTPConnection(cloud['endpoint']+':'+str(cloud['port']))
+
+		headers = {
+		       'Authorization': "OAuth %s" %cloud['token'],
+		       'Accept': 'application/json'
+		       }
+
+		connection.request("GET",RESOURCE_PATH,headers=headers)
+
+		response = connection.getresponse()
+		body = response.read()
+		response_json = json.loads(body)
+
+		if sensor == 'GenericConfig':
+			return response_json['objects'][0]['current']
+		else:
+			return response_json['objects'][0]['value']
+	except Exception, argument:
+		assert False, 'Internal error: %s' % argument

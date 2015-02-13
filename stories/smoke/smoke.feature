@@ -67,3 +67,38 @@ Feature: Basic
     | Shield    | 1_5_x    | asciitable | ASCIITable          |
 
 
+  @smoke @smoke-0005 @ready
+  Scenario: Accessing to the back-end to get some random data
+    Given a hardware of type "<type>"
+    When I request the last value of "<sensor>" from "<cloud>"
+    Then I get some value
+
+    Examples:
+    | type      | sensor           | cloud |
+    | TTOpen    | Temperature      | local |
+    | Shield    | Temperature      | local |
+    | TTOpen    | GenericMeasure.j | local |
+    | Shield    | GenericMeasure.j | local |
+    | TTOpen    | GenericMeasure.m | local |
+    | Shield    | GenericMeasure.m | local |
+    | TTOpen    | GenericConfig.c  | local |
+    | Shield    | GenericConfig.c  | local |
+
+  @smoke @smoke-0006 @ready
+  Scenario: Accessing to the back-end to get a particular value
+    Given a hardware of type "<type>"
+    When I request the last value of "<sensor>" from "<cloud>"
+    Then I get the value "<value>"
+
+    Examples:
+    | type      | sensor           | cloud | value |
+    | TTOpen    | Temperature      | local | 22.4  |
+    | Shield    | Temperature      | local | 22.4  |
+    | TTOpen    | GenericMeasure.j | local | 33    |
+    | Shield    | GenericMeasure.j | local | 33    |
+    | TTOpen    | GenericMeasure.m | local | 34    |
+    | Shield    | GenericMeasure.m | local | 34    |
+    | TTOpen    | GenericConfig.c  | local | yes   |
+    | Shield    | GenericConfig.c  | local | yes   |
+
+

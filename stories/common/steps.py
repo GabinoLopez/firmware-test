@@ -206,3 +206,29 @@ def i_run_all_the_unit_tests_of_group1(step,story):
     world.c['sketch'] = {'kind':'unit tests'}
     assert path.isdir(ut_story_path), 'Not found the directory unittests/%s.' % story
     world.result, world.result_detailed = run_all_unit_test_in(ut_story_path)
+
+
+#
+# Back-End
+#
+@step(u'I request the last value of "([^"]*)" from "([^"]*)"')
+def i_request_the_last_value_of_group1_from_group2(step, sensor, cloud):
+	world.c['cloud'] = {
+		'endpoint': get_config('Clouds.' + cloud + '.endpoint'),
+		'port': get_config('Clouds.' + cloud + '.port'),
+		'token': get_config('Clouds.' + cloud + '.token')
+		}
+	assert 'hardware' in world.c, 'No hardware had been selected yet.'
+	external_id = get_config('Hardwares.' + world.c['hardware'] + '.external_id')
+	world.result = get_value_from_backend(cloud=world.c['cloud'],stack_id=external_id,sensor=sensor)
+
+
+@step(u'I get some value')
+def i_get_some_value(step):
+	assert world.result is not None, 'Some value expect, but nothing found.'
+
+@step(u'I get the value "([^"]*)"')
+def i_get_the_value_group1(step, value):
+    assert world.result is not None, 'Some value expect, but nothing found.'
+    assert str(world.result)==value, 'The value %s expected but %s found.' % (value,world.result)
+
