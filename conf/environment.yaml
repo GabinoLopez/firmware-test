@@ -1,0 +1,38 @@
+Hardwares:
+   Shield:
+      port: COM5 
+      timeout: 30
+      external_id: 8934071179000001899
+      Substitutions:
+         GPRS_APN: telefonica.com
+         login: un_login
+         password: una password
+         tosendphone: '+34646237397'
+         smstext: 'Hola, esto es un sms.'
+   TTOpen:
+      port: COM4 
+      timeout: 30
+      external_id: 8934071179000001899
+      Substitutions:
+         GPRS_APN: telefonica.com
+         login: un_login
+         password: una password
+         tosendphone: '+34646237397'
+         smstext: 'Hola, esto es un sms.'      
+IDEs:
+   1_0_x:
+      Path: C:\PROGRA~2\Arduino
+      CompileVersion: 106
+   1_5_x:
+      Path: D:\TT\arduino-1.5.8
+      CompileVersion: 158
+   1_6_x:
+      Path: D:\TT\arduino-1.6.0
+      CompileVersion: 160
+Clouds:
+   local:
+      endpoint: 127.0.0.1
+      port: 8000
+      token: e63dff24149921c343f3599ad30b0909f34eccb3
+Sketchs:
+   Substitutions:

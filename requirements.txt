@@ -1,0 +1,2 @@
+lettuce==0.2.19
+pyyaml==3.10
